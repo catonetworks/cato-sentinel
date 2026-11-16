@@ -10,8 +10,8 @@ Use **CCF** for the Content Hub's Cato Networks Events (Push) connector, or **AR
 
 | Connector flavor | Template | Table | Parameters |
 |---|---|---|---|
-| CCF | [![Deploy CCF parsers](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcatonetworks%2Fcato-sentinel-ccf%2Fad52d5bb6d5c03569946c6661857a5a6d79888a4%2Fasim%2FccfTemplate.json) | Fixed `CatoNetworksEvents_CL` | `workspaceName` |
-| ARM-template connector | [![Deploy ARM parsers](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcatonetworks%2Fcato-sentinel-ccf%2Fad52d5bb6d5c03569946c6661857a5a6d79888a4%2Fasim%2FarmTemplate.json) | Customer-selected existing Cato table | `workspaceName`, `tableName` |
+| CCF | [![Deploy CCF parsers](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcatonetworks%2Fcato-sentinel%2Fad52d5bb6d5c03569946c6661857a5a6d79888a4%2Fasim%2FccfTemplate.json) | Fixed `CatoNetworksEvents_CL` | `workspaceName` |
+| ARM-template connector | [![Deploy ARM parsers](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcatonetworks%2Fcato-sentinel%2Fad52d5bb6d5c03569946c6661857a5a6d79888a4%2Fasim%2FarmTemplate.json) | Customer-selected existing Cato table | `workspaceName`, `tableName` |
 
 The selected table must already exist. ARM `tableName` must match ASCII `[A-Za-z][A-Za-z0-9_]*_CL`: start with an ASCII letter, continue with ASCII letters, digits, or underscores, and end in `_CL`. Names are not rewritten. Both templates use the same mappings; table-specific function aliases are created for the selected table.
 
@@ -40,7 +40,7 @@ WORKSPACE_NAME='<workspace-name>'
 Run the CCF template without a table-name parameter:
 
 ```bash
-TEMPLATE_URI='https://raw.githubusercontent.com/catonetworks/cato-sentinel-ccf/ad52d5bb6d5c03569946c6661857a5a6d79888a4/asim/ccfTemplate.json'
+TEMPLATE_URI='https://raw.githubusercontent.com/catonetworks/cato-sentinel/ad52d5bb6d5c03569946c6661857a5a6d79888a4/asim/ccfTemplate.json'
 
 az deployment group what-if --subscription "$SUBSCRIPTION_ID" --resource-group "$RESOURCE_GROUP" --template-uri "$TEMPLATE_URI" --parameters workspaceName="$WORKSPACE_NAME"
 az deployment group create --subscription "$SUBSCRIPTION_ID" --resource-group "$RESOURCE_GROUP" --mode Incremental --template-uri "$TEMPLATE_URI" --parameters workspaceName="$WORKSPACE_NAME"
@@ -52,7 +52,7 @@ Provide the exact name of the existing Cato table and use the ARM template:
 
 ```bash
 TABLE_NAME='<existing-table-name>'
-TEMPLATE_URI='https://raw.githubusercontent.com/catonetworks/cato-sentinel-ccf/ad52d5bb6d5c03569946c6661857a5a6d79888a4/asim/armTemplate.json'
+TEMPLATE_URI='https://raw.githubusercontent.com/catonetworks/cato-sentinel/ad52d5bb6d5c03569946c6661857a5a6d79888a4/asim/armTemplate.json'
 
 az deployment group what-if --subscription "$SUBSCRIPTION_ID" --resource-group "$RESOURCE_GROUP" --template-uri "$TEMPLATE_URI" --parameters workspaceName="$WORKSPACE_NAME" tableName="$TABLE_NAME"
 az deployment group create --subscription "$SUBSCRIPTION_ID" --resource-group "$RESOURCE_GROUP" --mode Incremental --template-uri "$TEMPLATE_URI" --parameters workspaceName="$WORKSPACE_NAME" tableName="$TABLE_NAME"

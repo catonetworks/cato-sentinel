@@ -16,7 +16,7 @@ The schema updater is **not** an ARM connector schema-update tool. The parser te
 
 Use `updateTemplate.json` for the CCF connector's `CatoNetworksEvents_CL` table when you need the current event schema. It updates the existing table and DCR transformation. It does not install or update parser functions, recreate the Entra application, rotate the client secret, or rewrite already-ingested data.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcatonetworks%2Fcato-sentinel-ccf%2Fmain%2FupdateTemplate.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcatonetworks%2Fcato-sentinel%2Fmain%2FupdateTemplate.json)
 
 1. Select the subscription and resource group containing the Sentinel workspace.
 2. Enter the workspace name in the `workspace` parameter.
