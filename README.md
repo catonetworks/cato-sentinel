@@ -1,60 +1,28 @@
-# Cato Networks for Microsoft Sentinel — schema updates
+# Maintaining Cato connectors for Microsoft Sentinel
 
-This repository serves the schema update for the **Cato Networks Events (Push)** connector in
-Microsoft Sentinel.
+This repository provides separate maintenance templates for the Cato Networks Events connector and Cato ASIM parsers. Choose the operation that matches your connector and goal:
 
-The solution in the Content Hub carries the event schema as it stood when that version was
-published, and Cato adds event fields more often than the solution is republished. This template
-brings the custom table and Data Collection Rule your connector uses up to the current schema.
+**CCF** is Microsoft's Codeless Connector Framework; here it refers to the **Cato Networks Events (Push)** connector installed through the Microsoft Sentinel Content Hub. **ARM-template connector** refers to the Cato connector deployed with a customer-selected table. Both parser installers in this repository are Azure Resource Manager (ARM) template files; choose one based on the connector you use, not the template file format.
 
-**Apply it once after you install the connector, and again whenever you want newly added fields.**
-Installing a newer version of the solution does not do this for you: the table and Data Collection
-Rule were created by the **Deploy** button on the connector page and belong to your subscription,
-so only this template changes them.
+| Operation | Template | Applies to | Effect / required parameter |
+|---|---|---|---|
+| Update ingestion schema | [`updateTemplate.json`](updateTemplate.json) | CCF connector only; fixed table `CatoNetworksEvents_CL` | Updates the custom table schema and Data Collection Rule (DCR); enter `workspace`. |
+| Install/update ASIM parsers | [`asim/ccfTemplate.json`](asim/ccfTemplate.json) | CCF connector; fixed table `CatoNetworksEvents_CL` | Deploys parser saved searches only; enter `workspaceName`. |
+| Install/update ASIM parsers | [`asim/armTemplate.json`](asim/armTemplate.json) | ARM-template connector; an existing customer-selected table | Deploys parser saved searches only; enter `workspaceName` and `tableName`. |
 
-Nothing breaks if you skip it. Events keep arriving, and fields not in your table are simply not
-stored.
+The schema updater is **not** an ARM connector schema-update tool. The parser templates work with both connector flavors and do not change the table schema or DCR. Schema and parser updates are independent; neither updates the other. Use Azure Resource Manager **Incremental** deployment mode for these templates, never Complete mode.
 
-## ASIM parser preview
+## Update the CCF connector schema
 
-Preview Cato ASIM parsers for Microsoft Sentinel, with deployment guidance and template choices, in the [ASIM parser guide](asim/README.md).
-
-## Apply the update
+Use `updateTemplate.json` for the CCF connector's `CatoNetworksEvents_CL` table when you need the current event schema. It updates the existing table and DCR transformation. It does not install or update parser functions, recreate the Entra application, rotate the client secret, or rewrite already-ingested data.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcatonetworks%2Fcato-sentinel-ccf%2Fmain%2FupdateTemplate.json)
 
-1. Select the **subscription** and the **resource group** that hold your Sentinel workspace.
-2. Enter the **workspace name**. That is the only value you supply.
-3. Select **Review + create**.
+1. Select the subscription and resource group containing the Sentinel workspace.
+2. Enter the workspace name in the `workspace` parameter.
+3. Review and create the deployment.
 
-The region field is Azure's standard deployment setting and does not affect the connector. Your
-Data Collection Rule keeps the region it was created in.
-
-**One workspace at a time.** A Log Analytics workspace holds one Cato connector, so if you run the
-connector in more than one workspace, apply the update once per workspace.
-
-## What changes, and what does not
-
-| | |
-|---|---|
-| Custom table `CatoNetworksEvents_CL` | New columns added. Existing data and columns untouched. |
-| Data Collection Rule | Stream and transformation updated to carry the new fields. |
-| Ingestion URL, Data Collection Rule immutable ID, Data Collection Endpoint | **Unchanged** |
-| Entra application and client secret | **Unchanged** |
-| Table retention | **Unchanged**, whether workspace default or one you set |
-| Data already ingested | **Unchanged** |
-
-Nothing needs re-entering in the Cato Management Application, and ingestion continues while the
-update is applied.
-
-The schema only ever grows. Columns are added, never removed or retyped, so an update cannot break
-a workbook, analytics rule or saved query built on the existing fields.
-
-## After deploying
-
-**Allow up to 30 minutes.** The ingestion endpoint caches the previous schema briefly. During that
-window events are still accepted normally and the new fields are simply empty, so check with a
-query before concluding anything is wrong:
+The Azure region setting is a standard deployment setting; the DCR retains its existing region. Apply the update separately in each workspace where you use the connector. Allow up to 30 minutes for the ingestion endpoint to reflect the updated schema. You can check recent events with:
 
 ```kusto
 CatoNetworksEvents_CL
@@ -62,30 +30,18 @@ CatoNetworksEvents_CL
 | take 10
 ```
 
-If new fields are still empty after an hour, contact Cato support.
+New fields may be empty during propagation or when the source event does not populate them. If expected fields remain empty after an hour, contact Cato support.
 
-## Event field reference
+## Install or update ASIM parsers
 
-The fields in `CatoNetworksEvents_CL` mirror the Cato events feed. Two field names differ, because
-Log Analytics reserves them:
+The parser templates create or update workspace saved searches only. Use the CCF template for the fixed `CatoNetworksEvents_CL` table, or the ARM template for an existing custom table. See the [ASIM parser guide](asim/README.md) for portal and CLI steps, requirements, query examples, compatibility notes, and current preview limitations.
 
-| Cato field | Column in Sentinel |
-|---|---|
-| `time` | `TimeGenerated` |
-| `title` | `activity_title` |
+## Event field reference and support
 
-- **Event schema** — [Cato Event Schema](https://knowledge.catonetworks.com/docs/cato-event-schema)
-- **Field definitions** — [EventFieldName in the Cato API documentation](https://api.catonetworks.com/documentation/#definition-EventFieldName)
-- **Connector setup and troubleshooting** — [Integrating Cato Events with Microsoft Sentinel](https://knowledge.catonetworks.com/docs/integrating-cato-events-with-microsoft-sentinel)
-- **Knowledge Base** — [knowledge.catonetworks.com](https://knowledge.catonetworks.com/)
+The `CatoNetworksEvents_CL` fields mirror the Cato events feed, with two names adapted for Log Analytics: `time` is `TimeGenerated`, and `title` is `activity_title`.
 
-## Support
-
-Contact [Cato Networks support](https://support.catonetworks.com/) with your account ID and the
-name of your Log Analytics workspace.
-
----
-
-`updateTemplate.json` is generated from the Cato event schema and published automatically. Do not
-edit it by hand. Previous versions are kept under [`archive/`](archive) so support can identify
-which schema a deployment is on.
+- [Cato Event Schema](https://knowledge.catonetworks.com/docs/cato-event-schema)
+- [EventFieldName in the Cato API documentation](https://api.catonetworks.com/documentation/#definition-EventFieldName)
+- [Integrating Cato Events with Microsoft Sentinel](https://knowledge.catonetworks.com/docs/integrating-cato-events-with-microsoft-sentinel)
+- [Cato Knowledge Base](https://knowledge.catonetworks.com/)
+- [Cato Networks support](https://support.catonetworks.com/)
