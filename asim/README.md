@@ -1,6 +1,6 @@
 # Cato ASIM parsers for Microsoft Sentinel — preview
 
-Parser version **3.0.0** provides six ASIM schemas and 12 query-time functions, targeting Microsoft schema version 1.0.0: `NetworkSession`, `Dns`, `WebSession`, `Authentication`, `AlertEvent`, and `AuditEvent`. The parsers normalize Cato events already present in a Log Analytics table. Installation creates saved searches, not new tables or ingestion configuration.
+Parser version **3.0.1** provides six ASIM schemas and 12 query-time functions, targeting Microsoft schema version 1.0.0: `NetworkSession`, `Dns`, `WebSession`, `Authentication`, `AlertEvent`, and `AuditEvent`. The parsers normalize Cato events already present in a Log Analytics table. Installation creates saved searches, not new tables or ingestion configuration. Version 3.0.1 improves Microsoft Sentinel compatibility without changing event classification or field mappings.
 
 This is a preview, not a Microsoft-certified schema or a Content Hub release. Entity-type values and URLs in `DstFQDN` may not satisfy ASIM logical types. Missing source fields can produce sparse or empty normalized output. Generic `file_hash` does not identify a verified hashing algorithm, so it is not assigned a typed hash.
 
@@ -10,8 +10,8 @@ Use **CCF** for the Content Hub's Cato Networks Events (Push) connector, or **AR
 
 | Connector flavor | Template | Table | Parameters |
 |---|---|---|---|
-| CCF | [![Deploy CCF parsers](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcatonetworks%2Fcato-sentinel%2Fad52d5bb6d5c03569946c6661857a5a6d79888a4%2Fasim%2FccfTemplate.json) | Fixed `CatoNetworksEvents_CL` | `workspaceName` |
-| ARM-template connector | [![Deploy ARM parsers](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcatonetworks%2Fcato-sentinel%2Fad52d5bb6d5c03569946c6661857a5a6d79888a4%2Fasim%2FarmTemplate.json) | Customer-selected existing Cato table | `workspaceName`, `tableName` |
+| CCF | [![Deploy CCF parsers](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcatonetworks%2Fcato-sentinel%2Fa26a985e510b0472d974cceb3e747df2e21ac75d%2Fasim%2FccfTemplate.json) | Fixed `CatoNetworksEvents_CL` | `workspaceName` |
+| ARM-template connector | [![Deploy ARM parsers](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcatonetworks%2Fcato-sentinel%2Fa26a985e510b0472d974cceb3e747df2e21ac75d%2Fasim%2FarmTemplate.json) | Customer-selected existing Cato table | `workspaceName`, `tableName` |
 
 The selected table must already exist. ARM `tableName` must match ASCII `[A-Za-z][A-Za-z0-9_]*_CL`: start with an ASCII letter, continue with ASCII letters, digits, or underscores, and end in `_CL`. Names are not rewritten. Both templates use the same mappings; table-specific function aliases are created for the selected table.
 
@@ -40,7 +40,7 @@ WORKSPACE_NAME='<workspace-name>'
 Run the CCF template without a table-name parameter:
 
 ```bash
-TEMPLATE_URI='https://raw.githubusercontent.com/catonetworks/cato-sentinel/ad52d5bb6d5c03569946c6661857a5a6d79888a4/asim/ccfTemplate.json'
+TEMPLATE_URI='https://raw.githubusercontent.com/catonetworks/cato-sentinel/a26a985e510b0472d974cceb3e747df2e21ac75d/asim/ccfTemplate.json'
 
 az deployment group what-if --subscription "$SUBSCRIPTION_ID" --resource-group "$RESOURCE_GROUP" --template-uri "$TEMPLATE_URI" --parameters workspaceName="$WORKSPACE_NAME"
 az deployment group create --subscription "$SUBSCRIPTION_ID" --resource-group "$RESOURCE_GROUP" --mode Incremental --template-uri "$TEMPLATE_URI" --parameters workspaceName="$WORKSPACE_NAME"
@@ -52,7 +52,7 @@ Provide the exact name of the existing Cato table and use the ARM template:
 
 ```bash
 TABLE_NAME='<existing-table-name>'
-TEMPLATE_URI='https://raw.githubusercontent.com/catonetworks/cato-sentinel/ad52d5bb6d5c03569946c6661857a5a6d79888a4/asim/armTemplate.json'
+TEMPLATE_URI='https://raw.githubusercontent.com/catonetworks/cato-sentinel/a26a985e510b0472d974cceb3e747df2e21ac75d/asim/armTemplate.json'
 
 az deployment group what-if --subscription "$SUBSCRIPTION_ID" --resource-group "$RESOURCE_GROUP" --template-uri "$TEMPLATE_URI" --parameters workspaceName="$WORKSPACE_NAME" tableName="$TABLE_NAME"
 az deployment group create --subscription "$SUBSCRIPTION_ID" --resource-group "$RESOURCE_GROUP" --mode Incremental --template-uri "$TEMPLATE_URI" --parameters workspaceName="$WORKSPACE_NAME" tableName="$TABLE_NAME"
